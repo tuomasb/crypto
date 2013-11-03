@@ -3,7 +3,7 @@
 // tuomas.blomqvist@aalto.fi
 // 67300C
 // References used: http://keccak.noekeon.org/Keccak-implementation-3.2.pdf
-// Probably not the most optimal implementation but was easy to implement while only reading the pseudocode on pages 7 and 8
+// Probably not the most optimal implementation but was easy to implement while reading the pseudocode on pages 7 and 8
 
 
 #include "stdio.h"
@@ -32,18 +32,20 @@ const unsigned long RC[24]={0x0000000000000001, 0x0000000000008082,
 
 
 // Print internal same in the same format as https://github.com/gvanas/KeccakCodePackage/blob/master/TestVectors/KeccakF-1600-IntermediateValues.txt
+// Does nothing unless DEBUG defined
+void dbgprint(unsigned long** STATE, char * str) {
 #ifdef DEBUG
-void dbgprint(unsigned long** STATE) {
+  char c; // Something for scanf
+  printf("State after %s\n", str);
   for(int x=0; x<5; x++) {
     for(int y=0; y<5; y++) {
       printf("%lx ", STATE[y][x]); // Reverse x,y
     }
   printf("\n");
   }
-  printf("\nStep Complete\n");
-  scanf("%c");
-}
+  scanf("%c", &c);
 #endif
+}
 
 
 // Rotate 64bit word specified amount of times to left
@@ -92,7 +94,7 @@ void Rho(unsigned long** STATE) {
 }
 
 // Pi-step
-
+// Move lanes around
 void Pi(unsigned long** STATE) {
   // Need to copy the current state to be able to relocate the words without overwriting words that have not yet been relocated anywhere
   // Memory from stack, no need to be freed
@@ -127,38 +129,24 @@ void Chi(unsigned long** STATE) {
 }
 
 // Iota-step
-// Xor the first 64-bit word with the round constant
+// Xor the first 64-bit lane with the round constant
 void Iota(unsigned long** STATE, unsigned long RC) {
   STATE[0][0] = STATE[0][0] ^ RC;
 }
 
 // One round of Keccak-permutation (along with my debug-statements)
+// dbgprint does nothing unless DEBUG is defined
 void Round(unsigned long** STATE, unsigned long RC) {
   Theta(STATE);
-  #ifdef DEBUG
-  printf("After theta\n");
-  dbgprint(STATE);
-  #endif
+  dbgprint(STATE, "Theta");
   Rho(STATE);
-  #ifdef DEBUG
-  printf("After rho\n");
-  dbgprint(STATE);
-  #endif
+  dbgprint(STATE, "Rho");
   Pi(STATE);
-  #ifdef DEBUG
-  printf("After pi\n");
-  dbgprint(STATE);
-  #endif
+  dbgprint(STATE, "Pi");
   Chi(STATE);
-  #ifdef DEBUG
-  printf("After chi\n");
-  dbgprint(STATE);
-  #endif
+  dbgprint(STATE, "Chi");
   Iota(STATE, RC);
-  #ifdef DEBUG
-  printf("After iota\n");
-  dbgprint(STATE);
-  #endif
+  dbgprint(STATE, "Iota");
 }
 
 //Return the state after 24 rounds
