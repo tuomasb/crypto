@@ -115,6 +115,7 @@ int main(){
   free(Key);
   free(Plaintext);
   free(Ciphertext);
+  free(Ciphertext2);
 
   /*******************  TEST 3 ADDED BY TUOMAS TO DEMONSTRATE DECRYPTION BY RUNNING ENCRYPT TWICE SINCE XORRING WITH THE SAME BYTESTEAM WILL ALSO DECRYPT AN ENCRYPTED TEXT ************/
   Key=malloc(16*sizeof(unsigned char)); 
